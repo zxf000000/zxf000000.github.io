@@ -1,5 +1,5 @@
-    ---
-    layout: post
-    title: My First Post
-    ---
-    first test
+---
+layout: post
+title: My First Post
+---
+first test
