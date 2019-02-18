@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="keyword"  content="iOS开发 折腾">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>Objective-C 编码规范 - 骁菲的博客 | xf's Bolg</title>
+
+    <link rel="canonical" href="http://localhost:4000/2018/12/25/Objective-C-%E7%BC%96%E7%A0%81%E8%A7%84%E8%8C%83/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="/css/syntax.css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="http://cdn.staticfile.org/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">xf's Bolg</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <!-- Known Issue, found by Hux:
+            <nav>'s height woule be hold on by its content.
+            so, when navbar scale out, the <nav> will cover tags.
+            also mask any touch event of tags, unfortunately.
+        -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        // CLOSE
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        // OPEN
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/home-bg.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header {
+        background-image: url('/img/home-bg.jpg')
+    }
+</style>
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#iOS" title="iOS">iOS</a>
+                        
+                    </div>
+                    <h1>Objective-C 编码规范</h1>
+                    
+                    
+                    <h2 class="subheading"></h2>
+                    
+                    <span class="meta">Posted by xf's Bolg on December 25, 2018</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                <h1 id="objective-c-编码规范">Objective-C 编码规范</h1>
+
+<h2 id="留白和格式">留白和格式</h2>
+
+<h3 id="空格-和-制表符">空格 和 制表符</h3>
+
+<blockquote>
+  <p>缩进四个空格或者一个制表符</p>
+</blockquote>
+
+<p>在编辑器设置成一个制表符四个空格</p>
+
+<h3 id="行宽">行宽</h3>
+
+<p>尽量将代码保持在 80 列以内,除非超过之后有助于提高可读性.</p>
+
+<h3 id="方法声明和定义">方法声明和定义</h3>
+
+<blockquote>
+  <ul>
+    <li>/ + 和返回类型之间必须使用一个空格,参数列表从安徽总只有参数之间可以有空格.</li>
+  </ul>
+</blockquote>
+
+<p>方法应该像这样:</p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">doSomethingWithString</span><span class="p">:(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nv">theString</span> <span class="p">{</span>
+	<span class="p">...</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>星号前的空格可选,但是要保持一致.</p>
+
+<p>如果一行有非常多的参数,更好的方式是将每个参数单独拆成一行.如果使用多行,将每个参数前的冒号对齐</p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">doSomeThingWith</span><span class="p">:(</span><span class="n">YUZFOO</span> <span class="o">*</span><span class="p">)</span><span class="nv">theFoo</span>
+				   <span class="nf">rect</span><span class="p">:(</span><span class="n">CGRect</span><span class="p">)</span><span class="nv">theRect</span>
+			   <span class="nf">interval</span><span class="p">:(</span><span class="kt">float</span><span class="p">)</span><span class="nv">theInterval</span> <span class="p">{</span>
+
+<span class="p">}</span>
+</code></pre></div>
+
+<p>当第一个关键字比其他的短的时候,保证下一行至少有四个空格的缩进.这样可以使关键字垂直对齐:</p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">short</span><span class="p">:(</span><span class="n">GTMFoo</span> <span class="o">*</span><span class="p">)</span><span class="nv">theFoo</span>
+    <span class="nf">longKeyword</span><span class="p">:(</span><span class="n">NSRect</span><span class="p">)</span><span class="nv">theRect</span>
+    <span class="nf">evenLongerKeyword</span><span class="p">:(</span><span class="kt">float</span><span class="p">)</span><span class="nv">theInterval</span> <span class="p">{</span>
+    <span class="p">...</span>
+
+</code></pre></div>
+
+<h3 id="方法调用">方法调用</h3>
+
+<blockquote>
+  <p>方法调用应该尽量保持与方法声明的格式一致,当格式的风格有多种选择的时候,新的代码要与已有代码保持一致.</p>
+</blockquote>
+
+<p>调用时所有参数应该在同一行:</p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="p">[</span><span class="n">myObject</span> <span class="nf">doFooWith</span><span class="p">:</span><span class="n">arg1</span> <span class="nf">name</span><span class="p">:</span><span class="n">arg2</span> <span class="n">error</span><span class="o">:</span><span class="n">arg3</span><span class="p">];</span>
+
+</code></pre></div>
+
+<p>或者每行一个参数,以冒号对齐:</p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="p">[</span><span class="n">myObject</span> <span class="nf">doFooWith</span><span class="p">:</span><span class="n">arg1</span>
+               <span class="nf">name</span><span class="p">:</span><span class="n">arg2</span>
+              <span class="n">error</span><span class="o">:</span><span class="n">arg3</span><span class="p">];</span>
+</code></pre></div>
+
+<p>不要使用下面的缩进风格:</p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="p">[</span><span class="n">myObject</span> <span class="nf">doFooWith</span><span class="p">:</span><span class="n">arg1</span> <span class="nf">name</span><span class="p">:</span><span class="n">arg2</span>
+              <span class="n">error</span><span class="o">:</span><span class="n">arg3</span><span class="p">];</span>
+
+<span class="p">[</span><span class="n">myObject</span> <span class="nf">doFooWith</span><span class="p">:</span><span class="n">arg1</span>
+               <span class="nf">name</span><span class="p">:</span><span class="n">arg2</span> <span class="n">error</span><span class="o">:</span><span class="n">arg3</span><span class="p">];</span>
+
+<span class="p">[</span><span class="n">myObject</span> <span class="nf">doFooWith</span><span class="p">:</span><span class="n">arg1</span>
+          <span class="nf">name</span><span class="p">:</span><span class="n">arg2</span>  <span class="c1">// 对齐错误
+</span>          <span class="nl">error:</span><span class="n">arg3</span><span class="p">];</span>
+</code></pre></div>
+
+<h3 id="异常">异常</h3>
+
+<blockquote>
+  <p>每个@ 标签应该有独立的一行, 在<code class="highlighter-rouge">@</code> 和 <code class="highlighter-rouge">{}</code> 之间需要有一个空格,<code class="highlighter-rouge">@catch</code> 与被捕捉到的异常对象的声明之间也要有一个空格</p>
+</blockquote>
+
+<p>如果使用了异常处理,使用这个格式.但是一般不推荐使用异常处理</p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="k">@try</span> <span class="p">{</span>
+  <span class="n">foo</span><span class="p">();</span>
+<span class="p">}</span>
+<span class="k">@catch</span> <span class="p">(</span><span class="n">NSException</span> <span class="o">*</span><span class="n">ex</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">bar</span><span class="p">(</span><span class="n">ex</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="k">@finally</span> <span class="p">{</span>
+  <span class="n">baz</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="协议名">协议名</h3>
+
+<blockquote>
+  <p>类型标识符和尖括号内的协议名之间,不能有任何空格</p>
+</blockquote>
+
+<p>这条适用于类声明,实例变量以及方法声明:</p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="k">@interface</span> <span class="nc">MyProtocoledClass</span> <span class="p">:</span> <span class="nc">NSObject</span><span class="o">&lt;</span><span class="n">NSWindowDelegate</span><span class="o">&gt;</span> <span class="p">{</span>
+  <span class="n">id</span><span class="o">&lt;</span><span class="n">MyFancyDelegate</span><span class="o">&gt;</span> <span class="n">delegate_</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span> <span class="n">weak</span><span class="p">)</span> <span class="n">id</span><span class="o">&lt;</span><span class="n">MyFancyDelegate</span><span class="o">&gt;</span> <span class="n">delegate</span><span class="p">;</span>
+
+<span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">setDelegate</span><span class="p">:(</span><span class="n">id</span><span class="o">&lt;</span><span class="n">MyFancyDelegate</span><span class="o">&gt;</span><span class="p">)</span><span class="nv">aDelegate</span><span class="p">;</span>
+<span class="k">@end</span>
+</code></pre></div>
+
+<h3 id="block-闭包">block (闭包)</h3>
+
+<blockquote>
+  <p><code class="highlighter-rouge">block</code> 适合用在 target/selector 模式下创建回调方法时.<code class="highlighter-rouge">block</code>使代码更易读. <code class="highlighter-rouge">block</code>中的代码应该缩进四个空格.</p>
+</blockquote>
+
+<p>具体取决于<code class="highlighter-rouge">block</code> 的长度,一般遵循下列原则:</p>
+
+<ul>
+  <li>如果一行可以写完,则没必要换行</li>
+  <li>如果不得不换行,关括号应该与 block 声明的第一个字符对齐</li>
+  <li>block 内的代码应该以四个空格缩进</li>
+  <li>如果 block 太长,比如超过 20 行,建议把 block 定义为一个局部变量,然后再使用该变量.</li>
+  <li>如果 block 不带参数,<code class="highlighter-rouge">^{</code> 之间无需空格,如果带有参数 <code class="highlighter-rouge">^(</code> 之间无需空格,但是 <code class="highlighter-rouge">) {</code> 之间必须有一个空格.</li>
+</ul>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="c1">// 单行block
+</span><span class="p">[</span><span class="n">operation</span> <span class="nf">setCompletionBlock</span><span class="p">:</span><span class="o">^</span><span class="p">{</span> <span class="p">[</span><span class="n">self</span> <span class="nf">onOperationDone</span><span class="p">];</span> <span class="p">}];</span>
+
+<span class="c1">// 对齐大括号
+</span><span class="p">[</span><span class="n">operation</span> <span class="nf">setCompletionBlock</span><span class="p">:</span><span class="o">^</span><span class="p">{</span>
+    <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">delegate</span> <span class="nf">newDataAvailable</span><span class="p">];</span>
+<span class="p">}];</span>
+
+<span class="c1">// 使用C api 的block 时,沿用OC 的规范
+</span><span class="n">dispatch_async</span><span class="p">(</span><span class="n">fileIOQueue_</span><span class="p">,</span> <span class="o">^</span><span class="p">{</span>
+    <span class="n">NSString</span><span class="o">*</span> <span class="n">path</span> <span class="o">=</span> <span class="p">[</span><span class="n">self</span> <span class="nf">sessionFilePath</span><span class="p">];</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="p">{</span>
+      <span class="c1">// ...
+</span>    <span class="p">}</span>
+<span class="p">});</span>
+
+<span class="c1">// 先定义实例变量
+</span><span class="kt">void</span> <span class="p">(</span><span class="o">^</span><span class="n">largeBlock</span><span class="p">)(</span><span class="kt">void</span><span class="p">)</span> <span class="o">=</span> <span class="o">^</span><span class="p">{</span>
+    <span class="c1">// ...
+</span><span class="p">};</span>
+<span class="p">[</span><span class="n">operationQueue_</span> <span class="nf">addOperationWithBlock</span><span class="p">:</span><span class="n">largeBlock</span><span class="p">];</span>
+</code></pre></div>
+
+<h2 id="命名">命名</h2>
+
+<p>尽可能遵守 Apple 的命名约定,尤其是和内存管理规则相关的地方</p>
+
+<p>推荐使用长的,描述性的方法和变量名</p>
+
+<p><strong>推荐:</strong></p>
+
+<pre><code class="language-objective-c">UIButton *settingsButton;
+</code></pre>
+
+<p><strong>不推荐:</strong></p>
+
+<pre><code class="language-objective-c">UIButton *setBut;
+</code></pre>
+
+<h3 id="分类名类别名">分类名(类别名)</h3>
+
+<blockquote>
+  <p>文件名必须反映出实现了什么类.</p>
+</blockquote>
+
+<p>分类的文件名应该包含被扩展的类名,比如: <code class="highlighter-rouge">NSString+Utils.h</code></p>
+
+<h3 id="方法名">方法名</h3>
+
+<blockquote>
+  <p>方法名应当以小写字母开头,并遵循驼峰命名法. 每个参数名也应该以小写字母开头.</p>
+</blockquote>
+
+<p>方法名应该尽量读起来像句子,应该选择与方法名连在一起读起来通顺的参数名,(例如, <code class="highlighter-rouge">convertPoint:fromRect</code> 或者 <code class="highlighter-rouge">replaceCharectersInRange:withString</code>).</p>
+
+<p>访问器方法应该与他们要获取的成员变量的名字一样,不应该以 get 作为前缀:</p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="n">getDelegate</span><span class="p">;</span>  <span class="c1">// 不推荐
+</span><span class="k">-</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="n">delegate</span><span class="p">;</span>     <span class="c1">// 推荐
+</span></code></pre></div>
+
+<h3 id="变量名">变量名</h3>
+
+<blockquote>
+  <p>变量名应该以小写字母开头,并使用驼峰格式. 类的成员变量应该以下划线作为后缀. 例如: <code class="highlighter-rouge">myLocalVarable</code>, <code class="highlighter-rouge">myInstanceVariable_</code> .</p>
+</blockquote>
+
+<h4 id="普通变量名">普通变量名</h4>
+
+<p>对于静态属性,不要使用匈牙利命名法. 尽量为变量起一个描述性的名字. 可以让代码阅读者立即理解代码. 例如:</p>
+
+<ul>
+  <li>错误的命名</li>
+</ul>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="kt">int</span> <span class="n">w</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">nerr</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">nCompConns</span><span class="p">;</span>
+<span class="n">tix</span> <span class="o">=</span> <span class="p">[[</span><span class="n">NSMutableArray</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">init</span><span class="p">];</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="p">[</span><span class="n">someObject</span> <span class="nf">object</span><span class="p">];</span>
+<span class="n">p</span> <span class="o">=</span> <span class="p">[</span><span class="n">network</span> <span class="nf">port</span><span class="p">];</span>
+</code></pre></div>
+
+<ul>
+  <li>正确的命名</li>
+</ul>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="kt">int</span> <span class="n">numErrors</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">numCompletedConnections</span><span class="p">;</span>
+<span class="n">tickets</span> <span class="o">=</span> <span class="p">[[</span><span class="n">NSMutableArray</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">init</span><span class="p">];</span>
+<span class="n">userInfo</span> <span class="o">=</span> <span class="p">[</span><span class="n">someObject</span> <span class="nf">object</span><span class="p">];</span>
+<span class="n">port</span> <span class="o">=</span> <span class="p">[</span><span class="n">network</span> <span class="nf">port</span><span class="p">];</span>
+
+</code></pre></div>
+
+<h4 id="常量">常量</h4>
+
+<blockquote>
+  <p>常量应该以驼峰命名法命名,并以相关类名作为前缀</p>
+</blockquote>
+
+<p><strong>推荐</strong></p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="k">static</span> <span class="k">const</span> <span class="n">NSTimeInterval</span> <span class="n">YUZSignInViewControllerFadeOutAnimationDuration</span> <span class="o">=</span> <span class="mi">0</span><span class="p">.</span><span class="mi">4</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>不推荐</strong></p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="k">static</span> <span class="k">const</span> <span class="n">NSTimeInterval</span> <span class="n">fadeOutTime</span> <span class="o">=</span> <span class="mi">0</span><span class="p">.</span><span class="mi">4</span><span class="p">;</span>
+</code></pre></div>
+
+<p>推荐使用常量来代替字符串字面值和数字,方便复用,而且可以快速修改二而不需要查找和替换. 常量应该用 static 来声明为静态常量,而不要用 #define, 除非他明确的作为一个宏来使用:</p>
+
+<p><strong>推荐</strong></p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="k">static</span> <span class="n">NSString</span> <span class="o">*</span> <span class="k">const</span> <span class="n">YUZCacheControllerDidClearCacheNotification</span> <span class="o">=</span> <span class="s">@"YUZCacheControllerDidClearCacheNotification"</span><span class="p">;</span>
+<span class="k">static</span> <span class="k">const</span> <span class="n">CGFloat</span> <span class="n">YUZImageThumbnailHeight</span> <span class="o">=</span> <span class="mi">50</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>不推荐</strong></p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="cp">#define CompanyName @"Apple Inc."
+#define magicNumber 42
+</span></code></pre></div>
+
+<p>如果一个常量需要在多个文件中使用,应该在头文件中这样暴露给外部:</p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="k">extern</span> <span class="n">NSString</span> <span class="o">*</span><span class="k">const</span> <span class="n">YUZCacheControllerDidClearCacheNotification</span><span class="p">;</span>
+</code></pre></div>
+
+<p>如果一个常量只在一个文件中使用,可以直接用 k 开头命名:</p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="k">static</span> <span class="n">NSString</span> <span class="o">*</span> <span class="k">const</span> <span class="n">kCacheControllerDidClearCacheNotification</span> <span class="o">=</span> <span class="s">@"kCacheControllerDidClearCacheNotification"</span><span class="p">;</span>
+
+</code></pre></div>
+
+<h2 id="字面值">字面值</h2>
+
+<blockquote>
+  <p>使用字面值来创建不可变的 <code class="highlighter-rouge">NSString</code> , <code class="highlighter-rouge">NSDictionary</code>, <code class="highlighter-rouge">NSArray</code> 和 <code class="highlighter-rouge">NSNumber</code> 对象.</p>
+</blockquote>
+
+<p>注意不要将 nil 传进 <code class="highlighter-rouge">NSArray</code> 和 <code class="highlighter-rouge">NSDictionary</code> 中,会导致崩溃</p>
+
+<p><strong>例如:</strong></p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="n">NSArray</span> <span class="o">*</span><span class="n">names</span> <span class="o">=</span> <span class="p">@[</span><span class="s">@"Brian"</span><span class="p">,</span> <span class="s">@"Matt"</span><span class="p">,</span> <span class="s">@"Chris"</span><span class="p">,</span> <span class="s">@"Alex"</span><span class="p">,</span> <span class="s">@"Steve"</span><span class="p">,</span> <span class="s">@"Paul"</span><span class="p">];</span>
+<span class="n">NSDictionary</span> <span class="o">*</span><span class="n">productManagers</span> <span class="o">=</span> <span class="p">@{</span><span class="s">@"iPhone"</span> <span class="o">:</span> <span class="s">@"Kate"</span><span class="p">,</span> <span class="s">@"iPad"</span> <span class="o">:</span> <span class="s">@"Kamal"</span><span class="p">,</span> <span class="s">@"Mobile Web"</span> <span class="o">:</span> <span class="s">@"Bill"</span><span class="p">};</span>
+<span class="n">NSNumber</span> <span class="o">*</span><span class="n">shouldUseLiterals</span> <span class="o">=</span> <span class="nb">@YES</span><span class="p">;</span>
+<span class="n">NSNumber</span> <span class="o">*</span><span class="n">buildingZIPCode</span> <span class="o">=</span> <span class="mi">@10018</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>不要:</strong></p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="n">NSArray</span> <span class="o">*</span><span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSArray</span> <span class="nf">arrayWithObjects</span><span class="p">:</span><span class="s">@"Brian"</span><span class="p">,</span> <span class="s">@"Matt"</span><span class="p">,</span> <span class="s">@"Chris"</span><span class="p">,</span> <span class="s">@"Alex"</span><span class="p">,</span> <span class="s">@"Steve"</span><span class="p">,</span> <span class="s">@"Paul"</span><span class="p">,</span> <span class="nb">nil</span><span class="p">];</span>
+<span class="n">NSDictionary</span> <span class="o">*</span><span class="n">productManagers</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSDictionary</span> <span class="nf">dictionaryWithObjectsAndKeys</span><span class="p">:</span> <span class="s">@"Kate"</span><span class="p">,</span> <span class="s">@"iPhone"</span><span class="p">,</span> <span class="s">@"Kamal"</span><span class="p">,</span> <span class="s">@"iPad"</span><span class="p">,</span> <span class="s">@"Bill"</span><span class="p">,</span> <span class="s">@"Mobile Web"</span><span class="p">,</span> <span class="nb">nil</span><span class="p">];</span>
+<span class="n">NSNumber</span> <span class="o">*</span><span class="n">shouldUseLiterals</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSNumber</span> <span class="nf">numberWithBool</span><span class="p">:</span><span class="nb">YES</span><span class="p">];</span>
+<span class="n">NSNumber</span> <span class="o">*</span><span class="n">buildingZIPCode</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSNumber</span> <span class="nf">numberWithInteger</span><span class="p">:</span><span class="mi">10018</span><span class="p">];</span>
+</code></pre></div>
+
+<h2 id="注释">注释</h2>
+
+<h3 id="文件注释">文件注释</h3>
+
+<blockquote>
+  <p>每个文件的开头以文件的简要描述为起始, 紧接着是作者,最后是版权声明和许可证样板</p>
+</blockquote>
+
+<h4 id="版权信息和作者">版权信息和作者</h4>
+
+<p>每个文件应该包括如下:</p>
+
+<ul>
+  <li>文件内容简要描述</li>
+  <li>代码作者</li>
+  <li>版权/许可证样板</li>
+</ul>
+
+<h4 id="声明部分的注释">声明部分的注释</h4>
+
+<blockquote>
+  <p>每个接口, 分类 以及协议应该注释,以描述他的目的以及与整个项目的关系.</p>
+</blockquote>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="c1">// A delegate for NSApplication to handle notifications about app
+// launch and shutdown. Owned by the main app controller.
+</span><span class="k">@interface</span> <span class="nc">MyAppDelegate</span> <span class="p">:</span> <span class="nc">NSObject</span> <span class="p">{</span>
+  <span class="p">...</span>
+<span class="p">}</span>
+<span class="k">@end</span>
+</code></pre></div>
+
+<p>如果已经在文件头部详细描述了接口,可以直接说明”完成信息参见文件头部”</p>
+
+<p>另外,公共接口的每个方法,都应该有注释来解释他的作用,参数,返回值以及其他影响</p>
+
+<p>如果有的话,为类的线程安全性做注释. 如果类的实例可以被多个线程访问,注释多线程条件下的使用规则.</p>
+
+<h4 id="实现部分的注释">实现部分的注释</h4>
+
+<blockquote>
+  <table>
+    <tbody>
+      <tr>
+        <td>使用</td>
+        <td>来引用注释用的变量以及符号名而不是使用引号</td>
+      </tr>
+    </tbody>
+  </table>
+</blockquote>
+
+<p>这样会避免二义性.</p>
+
+<p><strong>例如:</strong></p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="c1">// 有时候 |count| 可以为负数.
+</span></code></pre></div>
+
+<p>或者当引用已经包含引号的符号</p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="c1">// Remember to call |StringWithoutSpaces("foo bar baz")|
+</span></code></pre></div>
+
+<h2 id="条件语句">条件语句</h2>
+
+<p>条件语句体应该总是被大括号包围。尽管有时候你可以不使用大括号（比如，条件语句体只有一行内容），但是这样做会带来问题隐患。比如，增加一行代码时，你可能会误以为它是 if 语句体里面的。此外，更危险的是，如果把 if 后面的那行代码注释掉，之后的一行代码会成为 if 语句里的代码。</p>
+
+<p><strong>推荐:</strong></p>
+
+<pre><code class="language-objective-c">if (!error) {
+    return success;
+}
+</code></pre>
+
+<p><strong>不推荐:</strong></p>
+
+<pre><code class="language-objective-c">if (!error)
+    return success;
+</code></pre>
+
+<p>和</p>
+
+<pre><code class="language-objective-c">if (!error) return success;
+</code></pre>
+
+<p>在 2014 年 2 月 苹果的 SSL/TLS 实现里面发现了知名的 <a href="https://gotofail.com/">goto fail</a> 错误。</p>
+
+<p>代码在这里：</p>
+
+<pre><code class="language-objective-c">static OSStatus
+SSLVerifySignedServerKeyExchange(SSLContext *ctx, bool isRsa, SSLBuffer signedParams,
+                                 uint8_t *signature, UInt16 signatureLen) {
+  OSStatus        err;
+  ...
+
+  if ((err = SSLHashSHA1.update(&amp;hashCtx, &amp;serverRandom)) != 0)
+    goto fail;
+  if ((err = SSLHashSHA1.update(&amp;hashCtx, &amp;signedParams)) != 0)
+    goto fail;
+    goto fail;
+  if ((err = SSLHashSHA1.final(&amp;hashCtx, &amp;hashOut)) != 0)
+    goto fail;
+  ...
+
+fail:
+  SSLFreeBuffer(&amp;signedHashes);
+  SSLFreeBuffer(&amp;hashCtx);
+  return err;
+}
+</code></pre>
+
+<p>显而易见，这里有没有括号包围的 2 行连续的 <code class="highlighter-rouge">goto fail;</code> 。我们当然不希望写出上面的代码导致错误。</p>
+
+<p>此外，在其他条件语句里面也应该按照这种风格统一，这样更便于检查。</p>
+
+<h3 id="尤达表达式">尤达表达式</h3>
+
+<p>不要使用尤达表达式。尤达表达式是指，拿一个常量去和变量比较而不是拿变量去和常量比较。它就像是在表达 “蓝色是不是天空的颜色” 或者 “高个是不是这个男人的属性” 而不是 “天空是不是蓝的” 或者 “这个男人是不是高个子的”</p>
+
+<p><strong>推荐:</strong></p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="k">if</span> <span class="p">([</span><span class="n">myValue</span> <span class="nf">isEqual</span><span class="p">:</span><span class="mi">@42</span><span class="p">])</span> <span class="p">{</span> <span class="p">...</span>
+</code></pre></div>
+
+<p><strong>不推荐:</strong></p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="k">if</span> <span class="p">([</span><span class="mi">@42</span> <span class="nf">isEqual</span><span class="p">:</span><span class="n">myValue</span><span class="p">])</span> <span class="p">{</span> <span class="p">...</span>
+</code></pre></div>
+
+<h3 id="nil-和-bool-检查">nil 和 BOOL 检查</h3>
+
+<p>类似于 Yoda 表达式，nil 检查的方式也是存在争议的。一些 notous 库像这样检查对象是否为 nil：</p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="k">if</span> <span class="p">(</span><span class="nb">nil</span> <span class="o">==</span> <span class="n">myValue</span><span class="p">)</span> <span class="p">{</span> <span class="p">...</span>
+</code></pre></div>
+
+<p>或许有人会提出这是错的，因为在 nil 作为一个常量的情况下，这样做就像 Yoda 表达式了。 但是一些程序员这么做的原因是为了避免调试的困难，看下面的代码：</p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="k">if</span> <span class="p">(</span><span class="n">myValue</span> <span class="o">==</span> <span class="nb">nil</span><span class="p">)</span> <span class="p">{</span> <span class="p">...</span>
+</code></pre></div>
+
+<p>如果程序员敲错成这样：</p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="k">if</span> <span class="p">(</span><span class="n">myValue</span> <span class="o">=</span> <span class="nb">nil</span><span class="p">)</span> <span class="p">{</span> <span class="p">...</span>
+</code></pre></div>
+
+<p>这是合法的语句，但是很难看出错误来</p>
+
+<p>为了避免这些奇怪的问题，可以用感叹号来作为运算符。因为 nil 是 解释到 NO，所以没必要在条件语句里面把它和其他值比较。同时，不要直接把它和 <code class="highlighter-rouge">YES</code> 比较，因为 <code class="highlighter-rouge">YES</code> 的定义是 1， 而 <code class="highlighter-rouge">BOOL</code> 是 8 bit 的，实际上是 char 类型。</p>
+
+<p><strong>推荐:</strong></p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="k">if</span> <span class="p">(</span><span class="n">someObject</span><span class="p">)</span> <span class="p">{</span> <span class="p">...</span>
+<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">[</span><span class="n">someObject</span> <span class="nf">boolValue</span><span class="p">])</span> <span class="p">{</span> <span class="p">...</span>
+<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">someObject</span><span class="p">)</span> <span class="p">{</span> <span class="p">...</span>
+</code></pre></div>
+
+<p><strong>不推荐:</strong></p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="k">if</span> <span class="p">(</span><span class="n">someObject</span> <span class="o">==</span> <span class="nb">YES</span><span class="p">)</span> <span class="p">{</span> <span class="p">...</span> <span class="c1">// Wrong
+</span><span class="k">if</span> <span class="p">(</span><span class="n">myRawValue</span> <span class="o">==</span> <span class="nb">YES</span><span class="p">)</span> <span class="p">{</span> <span class="p">...</span> <span class="c1">// Never do this.
+</span><span class="k">if</span> <span class="p">([</span><span class="n">someObject</span> <span class="nf">boolValue</span><span class="p">]</span> <span class="o">==</span> <span class="nb">NO</span><span class="p">)</span> <span class="p">{</span> <span class="p">...</span>
+</code></pre></div>
+
+<p>同时这样也能提高一致性，以及提升可读性。</p>
+
+<h3 id="黄金大道">黄金大道</h3>
+
+<p>在使用条件语句编程时，代码的左边距应该是一条“黄金”或者“快乐”的大道。 也就是说，不要嵌套 <code class="highlighter-rouge">if</code> 语句。使用多个 return 可以避免增加循环的复杂度，并提高代码的可读性。因为方法的重要部分没有嵌套在分支里面，并且你可以很清楚地找到相关的代码。</p>
+
+<p><strong>推荐:</strong></p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">someMethod</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">[</span><span class="n">someOther</span> <span class="nf">boolValue</span><span class="p">])</span> <span class="p">{</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Do something important
+</span><span class="p">}</span>
+</code></pre></div>
+
+<p><strong>不推荐:</strong></p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">someMethod</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">([</span><span class="n">someOther</span> <span class="nf">boolValue</span><span class="p">])</span> <span class="p">{</span>
+        <span class="c1">// Do something important
+</span>    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="复杂的表达式">复杂的表达式</h3>
+
+<p>当你有一个复杂的 if 子句的时候，应该把它们提取出来赋给一个 BOOL 变量，这样可以让逻辑更清楚，而且让每个子句的意义体现出来。</p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="n">BOOL</span> <span class="n">nameContainsSwift</span>  <span class="o">=</span> <span class="p">[</span><span class="n">sessionName</span> <span class="nf">containsString</span><span class="p">:</span><span class="s">@"Swift"</span><span class="p">];</span>
+<span class="n">BOOL</span> <span class="n">isCurrentYear</span>      <span class="o">=</span> <span class="p">[</span><span class="n">sessionDateCompontents</span> <span class="nf">year</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2014</span><span class="p">;</span>
+<span class="n">BOOL</span> <span class="n">isSwiftSession</span>     <span class="o">=</span> <span class="n">nameContainsSwift</span> <span class="o">&amp;&amp;</span> <span class="n">isCurrentYear</span><span class="p">;</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">isSwiftSession</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// Do something very cool
+</span><span class="p">}</span>
+</code></pre></div>
+
+<h3 id="三元运算符">三元运算符</h3>
+
+<p>三元运算符 ? 应该只用在它能让代码更加清楚的地方。 一个条件语句的所有的变量应该是已经被求值了的。类似 if 语句，计算多个条件子句通常会让语句更加难以理解。或者可以把它们重构到实例变量里面。</p>
+
+<p><strong>推荐:</strong></p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="n">result</span> <span class="o">=</span> <span class="n">a</span> <span class="o">&gt;</span> <span class="n">b</span> <span class="p">?</span> <span class="n">x</span> <span class="p">:</span> <span class="n">y</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>不推荐:</strong></p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="n">result</span> <span class="o">=</span> <span class="n">a</span> <span class="o">&gt;</span> <span class="n">b</span> <span class="p">?</span> <span class="n">x</span> <span class="o">=</span> <span class="n">c</span> <span class="o">&gt;</span> <span class="n">d</span> <span class="p">?</span> <span class="n">c</span> <span class="p">:</span> <span class="n">d</span> <span class="p">:</span> <span class="n">y</span><span class="p">;</span>
+</code></pre></div>
+
+<p>当三元运算符的第二个参数（if 分支）返回和条件语句中已经检查的对象一样的对象的时候，下面的表达方式更灵巧：</p>
+
+<p><strong>推荐:</strong></p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="n">result</span> <span class="o">=</span> <span class="n">object</span> <span class="p">?</span> <span class="p">:</span> <span class="p">[</span><span class="n">self</span> <span class="nf">createObject</span><span class="p">];</span>
+</code></pre></div>
+
+<p><strong>不推荐:</strong></p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="n">result</span> <span class="o">=</span> <span class="n">object</span> <span class="p">?</span> <span class="n">object</span> <span class="p">:</span> <span class="p">[</span><span class="n">self</span> <span class="nf">createObject</span><span class="p">];</span>
+</code></pre></div>
+
+<h3 id="错误处理">错误处理</h3>
+
+<p>有些方法通过参数返回 error 的引用，使用这样的方法时应当检查方法的返回值，而非 error 的引用。</p>
+
+<p><strong>推荐:</strong></p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="n">NSError</span> <span class="o">*</span><span class="n">error</span> <span class="o">=</span> <span class="nb">nil</span><span class="p">;</span>
+<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">[</span><span class="n">self</span> <span class="nf">trySomethingWithError</span><span class="p">:</span><span class="o">&amp;</span><span class="n">error</span><span class="p">])</span> <span class="p">{</span>
+    <span class="c1">// Handle Error
+</span><span class="p">}</span>
+</code></pre></div>
+
+<p>此外，一些苹果的 API 在成功的情况下会对 error 参数（如果它非 NULL）写入垃圾值（garbage values），所以如果检查 error 的值可能导致错误 （甚至崩溃）。</p>
+
+<h2 id="case-语句">Case 语句</h2>
+
+<p>除非编译器强制要求，括号在 case 语句里面是不必要的。但是当一个 case 包含了多行语句的时候，需要加上括号。</p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="k">switch</span> <span class="p">(</span><span class="n">condition</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="c1">// ...
+</span>        <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="mi">2</span><span class="p">:</span> <span class="p">{</span>
+        <span class="c1">// ...
+</span>        <span class="c1">// Multi-line example using braces
+</span>        <span class="k">break</span><span class="p">;</span>
+       <span class="p">}</span>
+    <span class="k">case</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="c1">// ...
+</span>        <span class="k">break</span><span class="p">;</span>
+    <span class="k">default</span><span class="o">:</span>
+        <span class="c1">// ...
+</span>        <span class="k">break</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>有时候可以使用 fall-through 在不同的 case 里面执行同一段代码。一个 fall-through 是指移除 case 语句的 “break” 然后让下面的 case 继续执行。</p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="k">switch</span> <span class="p">(</span><span class="n">condition</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="k">case</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="c1">// code executed for values 1 and 2
+</span>        <span class="k">break</span><span class="p">;</span>
+    <span class="k">default</span><span class="o">:</span>
+        <span class="c1">// ...
+</span>        <span class="k">break</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>当在 switch 语句里面使用一个可枚举的变量的时候，<code class="highlighter-rouge">default</code> 是不必要的。比如：</p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="k">switch</span> <span class="p">(</span><span class="n">menuType</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="n">YUZEnumNone</span><span class="p">:</span>
+        <span class="c1">// ...
+</span>        <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="n">YUZEnumValue1</span><span class="p">:</span>
+        <span class="c1">// ...
+</span>        <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="n">YUZEnumValue2</span><span class="p">:</span>
+        <span class="c1">// ...
+</span>        <span class="k">break</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>此外，为了避免使用默认的 case，如果新的值加入到 enum，编译器会马上提示 warning</p>
+
+<p><code class="highlighter-rouge">Enumeration value 'YUZEnumValue3' not handled in switch.（枚举类型 'YUZEnumValue3' 没有被 switch 处理）</code></p>
+
+<h3 id="枚举类型">枚举类型</h3>
+
+<p>当使用 <code class="highlighter-rouge">enum</code> 的时候，建议使用新的固定的基础类型定义，因为它有更强大的类型检查和代码补全。 SDK 现在有一个 宏来鼓励和促进使用固定类型定义 - <code class="highlighter-rouge">NS_ENUM()</code></p>
+
+<p><strong>例子:</strong></p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="k">typedef</span> <span class="nf">NS_ENUM</span><span class="p">(</span><span class="n">NSUInteger</span><span class="p">,</span> <span class="n">YUZMachineState</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">YUZMachineStateNone</span><span class="p">,</span>
+    <span class="n">YUZMachineStateIdle</span><span class="p">,</span>
+    <span class="n">YUZMachineStateRunning</span><span class="p">,</span>
+    <span class="n">YUZMachineStatePaused</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<h2 id="类">类</h2>
+
+<h3 id="类名">类名</h3>
+
+<p>类名应该以三个大写字母作为前缀(双字母的为 Apple 的类预留).</p>
+
+<p>创建一个子类的时候,应该把说明性的部分放在前缀和父类名的中间.</p>
+
+<p>举个例子：如果你有一个 <code class="highlighter-rouge">YUZNetworkClient</code> 类，子类的名字会是<code class="highlighter-rouge">YUZTwitterNetworkClient</code> (注意 “Twitter” 在 “YUZ” 和 “NetworkClient” 之间); 按照这个约定， 一个<code class="highlighter-rouge">UIViewController</code> 的子类会是 <code class="highlighter-rouge">YUZTimelineViewController</code>.</p>
+
+<h3 id="initializer-和-dealloc">Initializer 和 dealloc</h3>
+
+<p>推荐的代码组织方式是将 <code class="highlighter-rouge">dealloc</code> 方法放在实现文件的最前面, <code class="highlighter-rouge">init</code> 应该紧跟在 <code class="highlighter-rouge">dealloc</code> 后面.</p>
+
+<p>如果有多个初始化方法, 指定初始化方法 (designated initializer) 应该放在最前面, 间接初始化方法 (secondary initializer) 跟在后面, ARC 模式下不需要实现 <code class="highlighter-rouge">dealloc</code> 方法, 但是把他们写在一起, <code class="highlighter-rouge">init</code>中做的事情要在<code class="highlighter-rouge">dealloc</code>中撤销.</p>
+
+<h3 id="designated-和-secondary-初始化方法">Designated 和 Secondary 初始化方法</h3>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code>
+<span class="k">@implementation</span> <span class="nc">YUZEvent</span>
+
+<span class="k">-</span> <span class="p">(</span><span class="n">instancetype</span><span class="p">)</span><span class="nf">initWithTitle</span><span class="p">:(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nv">title</span>
+                         <span class="nf">date</span><span class="p">:(</span><span class="n">NSDate</span> <span class="o">*</span><span class="p">)</span><span class="nv">date</span>
+                     <span class="nf">location</span><span class="p">:(</span><span class="n">CLLocation</span> <span class="o">*</span><span class="p">)</span><span class="nv">location</span> <span class="p">{</span>
+    <span class="n">self</span> <span class="o">=</span> <span class="p">[</span><span class="n">super</span> <span class="nf">init</span><span class="p">];</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">self</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">_title</span>    <span class="o">=</span> <span class="n">title</span><span class="p">;</span>
+        <span class="n">_date</span>     <span class="o">=</span> <span class="n">date</span><span class="p">;</span>
+        <span class="n">_location</span> <span class="o">=</span> <span class="n">location</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">self</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">-</span> <span class="p">(</span><span class="n">instancetype</span><span class="p">)</span><span class="nf">initWithTitle</span><span class="p">:(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nv">title</span>
+                         <span class="nf">date</span><span class="p">:(</span><span class="n">NSDate</span> <span class="o">*</span><span class="p">)</span><span class="nv">date</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">self</span> <span class="nf">initWithTitle</span><span class="p">:</span><span class="n">title</span> <span class="nf">date</span><span class="p">:</span><span class="n">date</span> <span class="n">location</span><span class="o">:</span><span class="nb">nil</span><span class="p">];</span>
+<span class="p">}</span>
+
+<span class="k">-</span> <span class="p">(</span><span class="n">instancetype</span><span class="p">)</span><span class="nf">initWithTitle</span><span class="p">:(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nv">title</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">self</span> <span class="nf">initWithTitle</span><span class="p">:</span><span class="n">title</span> <span class="nf">date</span><span class="p">:[</span><span class="n">NSDate</span> <span class="nf">date</span><span class="p">]</span> <span class="n">location</span><span class="o">:</span><span class="nb">nil</span><span class="p">];</span>
+<span class="p">}</span>
+
+<span class="k">@end</span>
+</code></pre></div>
+
+<p><code class="highlighter-rouge">initWithTitle:date:location:</code> 就是指定初始化方法, 另外的两个是间接初始化方法.</p>
+
+<blockquote>
+  <p>一个类应该有且只有一个 <code class="highlighter-rouge">designated</code> 初始化方法，其他的初始化方法应该调用这个 <code class="highlighter-rouge">designated</code> 的初始化方法（虽然这个情况有一个例外）</p>
+</blockquote>
+
+<h3 id="instancetype">instancetype</h3>
+
+<blockquote>
+  <p>使用 <code class="highlighter-rouge">instancetype</code> 来作为初始化方法的返回值</p>
+</blockquote>
+
+<h3 id="单例">单例</h3>
+
+<blockquote>
+  <p>使用 <code class="highlighter-rouge">dispatch_once()</code> 函数来实现单例.</p>
+</blockquote>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="k">+</span> <span class="p">(</span><span class="n">instancetype</span><span class="p">)</span><span class="n">sharedInstance</span> <span class="p">{</span>
+    <span class="k">static</span> <span class="n">id</span> <span class="n">sharedInstance</span> <span class="o">=</span> <span class="nb">nil</span><span class="p">;</span>
+    <span class="k">static</span> <span class="n">dispatch_once_t</span> <span class="n">onceToken</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">dispatch_once</span><span class="p">(</span><span class="o">&amp;</span><span class="n">onceToken</span><span class="p">,</span> <span class="o">^</span><span class="p">{</span>
+        <span class="n">sharedInstance</span> <span class="o">=</span> <span class="p">[[</span><span class="n">self</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">init</span><span class="p">];</span>
+    <span class="p">});</span>
+    <span class="k">return</span> <span class="n">sharedInstance</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="属性">属性</h3>
+
+<blockquote>
+  <p>属性尽可能的使用描述性命名.避免缩写.</p>
+</blockquote>
+
+<p>应该总是使用 setter 和 getter 方法访问属性, 除了 <code class="highlighter-rouge">init</code> 和 <code class="highlighter-rouge">dealloc</code> 方法.避免出现副作用.</p>
+
+<ul>
+  <li>使用<code class="highlighter-rouge">setter</code> 会遵守定义的内存管理语义(strong, copy, weak …)</li>
+  <li>KVO 通知 会被自动执行</li>
+  <li>更容易 debug</li>
+  <li>允许在一个单独的地方为设置属性添加额外的逻辑</li>
+</ul>
+
+<h4 id="属性定义">属性定义</h4>
+
+<p>推荐按照下面格式来进行属性定义:</p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span> <span class="n">readwrite</span><span class="p">,</span> <span class="n">copy</span><span class="p">)</span> <span class="n">NSString</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>
+</code></pre></div>
+
+<p>属性的参数应该按照: 原子性, 读写 和内存管理 排列.</p>
+
+<p>属性可以存储一个<code class="highlighter-rouge">block</code> ,为了存活到定义 block 的结束,必须使用 <code class="highlighter-rouge">copy</code> ,用来拷贝到堆里面去.</p>
+
+<p>如果要创建一个公有的 <code class="highlighter-rouge">getter</code> 和一个私有的 <code class="highlighter-rouge">setter</code> ,应该声明公开的属性为 <code class="highlighter-rouge">readonly</code> 并且在类的扩展中重新定义通用的属性为 <code class="highlighter-rouge">readwrite</code>.</p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="c1">// .h文件中
+</span><span class="k">@interface</span> <span class="nc">MyClass</span> <span class="p">:</span> <span class="nc">NSObject</span>
+<span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span> <span class="n">readonly</span><span class="p">,</span> <span class="n">strong</span><span class="p">)</span> <span class="n">NSObject</span> <span class="o">*</span><span class="n">object</span><span class="p">;</span>
+<span class="k">@end</span>
+<span class="c1">// .m文件中
+</span><span class="k">@interface</span> <span class="nc">MyClass</span> <span class="p">()</span>
+<span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span> <span class="n">readwrite</span><span class="p">,</span> <span class="n">strong</span><span class="p">)</span> <span class="n">NSObject</span> <span class="o">*</span><span class="n">object</span><span class="p">;</span>
+<span class="k">@end</span>
+
+<span class="k">@implementation</span> <span class="nc">MyClass</span>
+<span class="c1">// Do Something cool
+</span><span class="k">@end</span>
+</code></pre></div>
+
+<p>描述 <code class="highlighter-rouge">BOOL</code>属性的词如果是形容词, 那么 setter 不应该带 <code class="highlighter-rouge">is</code> 前缀, 但是对应的 <code class="highlighter-rouge">getter</code>访问器应该带上这个前缀. 如:</p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">assign</span><span class="p">,</span> <span class="n">getter</span><span class="o">=</span><span class="n">isEditable</span><span class="p">)</span> <span class="n">BOOL</span> <span class="n">editable</span><span class="p">;</span>
+</code></pre></div>
+
+<h4 id="私有属性">私有属性</h4>
+
+<blockquote>
+  <p>私有属性应该定义在类的实现文件的扩展中,不允许在有名字的 category 中定义属性. 除非扩展其他类.</p>
+</blockquote>
+
+<h3 id="可变对象">可变对象</h3>
+
+<blockquote>
+  <p>任何可以用一个可变的对象设置的(NSArray , NSString, NSURLRequest)属性的内存管理类型必须是<code class="highlighter-rouge">copy</code>的.</p>
+</blockquote>
+
+<p>同时应该尽量避免暴露在公开接口中的可变对象. 可以提供只读属性来返回对象的不可变的副本.</p>
+
+<h2 id="方法">方法</h2>
+
+<h3 id="参数断言">参数断言</h3>
+
+<blockquote>
+  <p>方法可能要求一些参数来满足特定条件,这个时候最好使用 <code class="highlighter-rouge">NSParameterAssert()</code> 来断言条件是否成立或者抛出一个异常.</p>
+</blockquote>
+
+<h3 id="私有方法">私有方法</h3>
+
+<blockquote>
+  <p>不要在私有方法前加 <code class="highlighter-rouge">_</code> 前缀. 这个前缀是 Apple 保留的.</p>
+</blockquote>
+
+<h2 id="categories">Categories</h2>
+
+<blockquote>
+  <p>在 category 方法前加上自己的小写前缀以及下划线, 比如 <code class="highlighter-rouge">- (void)yuz_myCategoryMethod</code> .</p>
+</blockquote>
+
+<h2 id="nsnotification">NSNotification</h2>
+
+<blockquote>
+  <p>定义<code class="highlighter-rouge">notification</code>的时候应该将通知的名字定义成一个字符串常量.类似暴露给其他类的字符串常量.</p>
+</blockquote>
+
+<p>同时,用一个 <code class="highlighter-rouge">did/will</code>这样的动词以及用 Notifications 后缀来命名.</p>
+
+<p>例如:</p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="c1">// Foo.h
+</span><span class="k">extern</span> <span class="n">NSString</span> <span class="o">*</span> <span class="k">const</span> <span class="n">YUZFooDidBecomeBarNotification</span>
+
+<span class="c1">// Foo.m
+</span><span class="n">NSString</span> <span class="o">*</span> <span class="k">const</span> <span class="n">YUZFooDidBecomeBarNotification</span> <span class="o">=</span> <span class="s">@"YUZFooDidBecomeBarNotification"</span><span class="p">;</span>
+</code></pre></div>
+
+<h2 id="代码组织">代码组织</h2>
+
+<h3 id="pragma">pragma</h3>
+
+<blockquote>
+  <p>利用 pragma 来组织一个类内部的代码</p>
+</blockquote>
+
+<p>分离:</p>
+
+<ul>
+  <li>不同功能组的方法</li>
+  <li>protocols 的实现</li>
+  <li>对父类方法的重写</li>
+</ul>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">dealloc</span> <span class="p">{</span> <span class="cm">/* ... */</span> <span class="p">}</span>
+<span class="o">-</span> <span class="p">(</span><span class="n">instancetype</span><span class="p">)</span><span class="n">init</span> <span class="p">{</span> <span class="cm">/* ... */</span> <span class="p">}</span>
+
+<span class="cp">#pragma mark - View Lifecycle （View 的生命周期）
+</span>
+<span class="o">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">viewDidLoad</span> <span class="p">{</span> <span class="cm">/* ... */</span> <span class="p">}</span>
+<span class="o">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">viewWillAppear</span><span class="o">:</span><span class="p">(</span><span class="n">BOOL</span><span class="p">)</span><span class="n">animated</span> <span class="p">{</span> <span class="cm">/* ... */</span> <span class="p">}</span>
+<span class="o">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">didReceiveMemoryWarning</span> <span class="p">{</span> <span class="cm">/* ... */</span> <span class="p">}</span>
+
+<span class="cp">#pragma mark - Custom Accessors （自定义访问器）
+</span>
+<span class="o">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">setCustomProperty</span><span class="o">:</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="n">value</span> <span class="p">{</span> <span class="cm">/* ... */</span> <span class="p">}</span>
+<span class="o">-</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="n">customProperty</span> <span class="p">{</span> <span class="cm">/* ... */</span> <span class="p">}</span>
+
+<span class="cp">#pragma mark - IBActions
+</span>
+<span class="o">-</span> <span class="p">(</span><span class="n">IBAction</span><span class="p">)</span><span class="n">submitData</span><span class="o">:</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="n">sender</span> <span class="p">{</span> <span class="cm">/* ... */</span> <span class="p">}</span>
+
+<span class="cp">#pragma mark - Public
+</span>
+<span class="o">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">publicMethod</span> <span class="p">{</span> <span class="cm">/* ... */</span> <span class="p">}</span>
+
+<span class="cp">#pragma mark - Private
+</span>
+<span class="o">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">YUZ_privateMethod</span> <span class="p">{</span> <span class="cm">/* ... */</span> <span class="p">}</span>
+
+<span class="cp">#pragma mark - UITableViewDataSource
+</span>
+<span class="o">-</span> <span class="p">(</span><span class="n">UITableViewCell</span> <span class="o">*</span><span class="p">)</span><span class="n">tableView</span><span class="o">:</span><span class="p">(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="n">tableView</span> <span class="n">cellForRowAtIndexPath</span><span class="o">:</span><span class="p">(</span><span class="n">NSIndexPath</span> <span class="o">*</span><span class="p">)</span><span class="n">indexPath</span> <span class="p">{</span> <span class="cm">/* ... */</span> <span class="p">}</span>
+
+<span class="cp">#pragma mark - YUZSuperclass
+</span>
+<span class="c1">// ... 重写来自 YUZSuperclass 的方法
+</span>
+<span class="cp">#pragma mark - NSObject
+</span>
+<span class="o">-</span> <span class="p">(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="n">description</span> <span class="p">{</span> <span class="cm">/* ... */</span> <span class="p">}</span>
+</code></pre></div>
+
+<h2 id="对象之间的通讯">对象之间的通讯</h2>
+
+<h3 id="block">Block</h3>
+
+<ul>
+  <li>使用 copy 修饰</li>
+  <li>避免循环引用
+例子:</li>
+</ul>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="n">__weak</span> <span class="n">__typeof</span><span class="p">(</span><span class="n">self</span><span class="p">)</span> <span class="n">weakSelf</span> <span class="o">=</span> <span class="n">self</span><span class="p">;</span>
+<span class="p">[</span><span class="n">self</span> <span class="nf">executeBlock</span><span class="p">:</span><span class="o">^</span><span class="p">(</span><span class="n">NSData</span> <span class="o">*</span><span class="n">data</span><span class="p">,</span> <span class="n">NSError</span> <span class="o">*</span><span class="n">error</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">[</span><span class="n">weakSelf</span> <span class="nf">doSomethingWithData</span><span class="p">:</span><span class="n">data</span><span class="p">];</span>
+<span class="p">}];</span>
+</code></pre></div>
+
+<p>多个语句的时候,避免<code class="highlighter-rouge">self</code> 提前释放</p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="n">__weak</span> <span class="n">__typeof</span><span class="p">(</span><span class="n">self</span><span class="p">)</span><span class="n">weakSelf</span> <span class="o">=</span> <span class="n">self</span><span class="p">;</span>
+<span class="p">[</span><span class="n">self</span> <span class="nf">executeBlock</span><span class="p">:</span><span class="o">^</span><span class="p">(</span><span class="n">NSData</span> <span class="o">*</span><span class="n">data</span><span class="p">,</span> <span class="n">NSError</span> <span class="o">*</span><span class="n">error</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">__strong</span> <span class="n">__typeof</span><span class="p">(</span><span class="n">weakSelf</span><span class="p">)</span> <span class="n">strongSelf</span> <span class="o">=</span> <span class="n">weakSelf</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">strongSelf</span><span class="p">)</span> <span class="p">{</span>
+        <span class="p">[</span><span class="n">strongSelf</span> <span class="nf">doSomethingWithData</span><span class="p">:</span><span class="n">data</span><span class="p">];</span>
+        <span class="p">[</span><span class="n">strongSelf</span> <span class="nf">doSomethingWithData</span><span class="p">:</span><span class="n">data</span><span class="p">];</span>
+    <span class="p">}</span>
+<span class="p">}];</span>
+</code></pre></div>
+
+<p>在 ARC 条件中，如果尝试用 -&gt; 符号访问一个实例变量，编译器会给出非常清晰的错误信息：</p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="n">Dereferencing</span> <span class="n">a</span> <span class="n">__weak</span> <span class="n">pointer</span> <span class="n">is</span> <span class="n">not</span> <span class="n">allowed</span> <span class="n">due</span> <span class="n">to</span> <span class="n">possible</span> <span class="n">null</span> <span class="n">value</span> <span class="n">caused</span> <span class="n">by</span> <span class="n">race</span> <span class="n">condition</span><span class="p">,</span> <span class="n">assign</span> <span class="n">it</span> <span class="n">to</span> <span class="n">a</span> <span class="n">strong</span> <span class="n">variable</span> <span class="n">first</span><span class="p">.</span> <span class="p">(</span><span class="err">对一个</span> <span class="n">__weak</span> <span class="err">指针的解引用不允许的，因为可能在竞态条件里面变成</span> <span class="n">null</span><span class="p">,</span> <span class="err">所以先把他定义成</span> <span class="n">strong</span> <span class="err">的属性</span><span class="p">)</span>
+</code></pre></div>
+
+<p>可以用下面的代码展示:</p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="n">__weak</span> <span class="n">typeof</span><span class="p">(</span><span class="n">self</span><span class="p">)</span> <span class="n">weakSelf</span> <span class="o">=</span> <span class="n">self</span><span class="p">;</span>
+<span class="n">myObj</span><span class="p">.</span><span class="n">myBlock</span> <span class="o">=</span> <span class="o">^</span><span class="p">{</span>
+    <span class="n">id</span> <span class="n">localVal</span> <span class="o">=</span> <span class="n">weakSelf</span><span class="o">-&gt;</span><span class="n">someIVar</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<h2 id="其他-cocoa-和-objective-c-特性">其他 Cocoa 和 Objective-C 特性</h2>
+
+<h3 id="初始化">初始化</h3>
+
+<blockquote>
+  <p>不要在 init 方法中,将成员变量初始化为 0 或者 nil</p>
+</blockquote>
+
+<h3 id="不要使用-new-方法">不要使用 <code class="highlighter-rouge">+new</code> 方法</h3>
+
+<blockquote>
+  <p>不要调用 new 方法,也不要重载. 使用 <code class="highlighter-rouge">alloc</code> 和 <code class="highlighter-rouge">init</code>方法创建并初始化对象.</p>
+</blockquote>
+
+<h3 id="保持-公共-api-简单">保持 公共 api 简单</h3>
+
+<blockquote>
+  <p>如果一个函数没必要公开,就不要公开,用私有分类保证公共头文件简洁.</p>
+</blockquote>
+
+<h3 id="使用根框架">使用根框架</h3>
+
+<blockquote>
+  <p><code class="highlighter-rouge">#import</code> 根框架而不是单独的文件</p>
+</blockquote>
+
+<p><em>推荐</em></p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="cp">#import &lt;Foundation/Foundation.h&gt;     // good
+</span></code></pre></div>
+
+<p><em>不推荐</em></p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="cp">#import &lt;Foundation/NSArray.h&gt;        // avoid
+#import &lt;Foundation/NSString.h&gt;
+</span></code></pre></div>
+
+<h3 id="在-setter-方法中-copy-nsstring">在 setter 方法中 copy NSString</h3>
+
+<blockquote>
+  <p>接受<code class="highlighter-rouge">NSString</code> 作为参数的<code class="highlighter-rouge">setter</code> ,应该总是<code class="highlighter-rouge">copy</code> 传入的字符串</p>
+</blockquote>
+
+<h3 id="bool-若干陷阱">BOOL 若干陷阱</h3>
+
+<blockquote>
+  <p>将普通整形转换成 <code class="highlighter-rouge">BOOL</code> 时要小心。不要直接将 <code class="highlighter-rouge">BOOL</code> 值与 <code class="highlighter-rouge">YES</code> 进行比较。</p>
+</blockquote>
+
+<p>Ojbective-C 中把 <code class="highlighter-rouge">BOOL</code> 定义成无符号字符型，这意味着 <code class="highlighter-rouge">BOOL</code> 类型的值远不止 <code class="highlighter-rouge">YES</code>(1)或 <code class="highlighter-rouge">NO</code>(0)。不要直接把整形转换成 <code class="highlighter-rouge">BOOL</code>。常见的错误包括将数组的大小、指针值及位运算的结果直接转换成 <code class="highlighter-rouge">BOOL</code> ，取决于整型结果的最后一个字节，很可能会产生一个 <code class="highlighter-rouge">NO</code> 值。当转换整形至 <code class="highlighter-rouge">BOOL</code> 时，使用三目操作符来返回 <code class="highlighter-rouge">YES</code> 或者 <code class="highlighter-rouge">NO</code>。</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>对 <code class="highlighter-rouge">BOOL</code> 使用逻辑运算符（&amp;&amp;，</td>
+      <td> </td>
+      <td>和 !）是合法的，返回值也可以安全地转换成 <code class="highlighter-rouge">BOOL</code>，不需要使用三目操作符。</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>错误的用法:</p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="n">BOOL</span><span class="p">)</span><span class="n">isBold</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="p">[</span><span class="n">self</span> <span class="nf">fontTraits</span><span class="p">]</span> <span class="o">&amp;</span> <span class="n">NSFontBoldTrait</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="o">-</span> <span class="p">(</span><span class="n">BOOL</span><span class="p">)</span><span class="n">isValid</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="p">[</span><span class="n">self</span> <span class="nf">stringValue</span><span class="p">];</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>正确的用法:</p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="n">BOOL</span><span class="p">)</span><span class="n">isBold</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="p">([</span><span class="n">self</span> <span class="nf">fontTraits</span><span class="p">]</span> <span class="o">&amp;</span> <span class="n">NSFontBoldTrait</span><span class="p">)</span> <span class="p">?</span> <span class="nb">YES</span> <span class="p">:</span> <span class="nb">NO</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="o">-</span> <span class="p">(</span><span class="n">BOOL</span><span class="p">)</span><span class="n">isValid</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="p">[</span><span class="n">self</span> <span class="nf">stringValue</span><span class="p">]</span> <span class="o">!=</span> <span class="nb">nil</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="o">-</span> <span class="p">(</span><span class="n">BOOL</span><span class="p">)</span><span class="n">isEnabled</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="p">[</span><span class="n">self</span> <span class="nf">isValid</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="p">[</span><span class="n">self</span> <span class="nf">isBold</span><span class="p">];</span>
+<span class="p">}</span>
+
+</code></pre></div>
+
+<p>同样，不要直接比较 YES/NO 和 BOOL 变量。不仅仅因为影响可读性，更重要的是结果可能与你想的不同。</p>
+
+<p>错误的用法:</p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="n">BOOL</span> <span class="n">great</span> <span class="o">=</span> <span class="p">[</span><span class="n">foo</span> <span class="nf">isGreat</span><span class="p">];</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">great</span> <span class="o">==</span> <span class="nb">YES</span><span class="p">)</span>
+  <span class="c1">// ...be great!
+</span></code></pre></div>
+
+<p>正确的用法：</p>
+
+<div class="language-objc highlighter-rouge"><pre class="highlight"><code><span class="n">BOOL</span> <span class="n">great</span> <span class="o">=</span> <span class="p">[</span><span class="n">foo</span> <span class="nf">isGreat</span><span class="p">];</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">great</span><span class="p">)</span>
+  <span class="c1">// ...be great!
+</span></code></pre></div>
+
+<h3 id="文件导入import">文件导入(import)</h3>
+
+<blockquote>
+  <p>如果在.h 文件中不需要用到类的属性,只需要声明, 使用 <code class="highlighter-rouge">@class</code> 声明, 在.m 文件中 使用 <code class="highlighter-rouge">#import</code> 导入</p>
+</blockquote>
+
+<h2 id="cocoa-模式">Cocoa 模式</h2>
+
+<h3 id="委托模式">委托模式</h3>
+
+<blockquote>
+  <p>委托对象不应该被 <code class="highlighter-rouge">retain</code> (用 <code class="highlighter-rouge">weak</code> 修饰)</p>
+</blockquote>
+
+<h3 id="mvc">MVC</h3>
+
+<blockquote>
+  <p>分离模型和试视图. 分离控制器和模型, 视图. 回调 API 用 <code class="highlighter-rouge"><span class="k">@protocol</span></code> 或者 <code class="highlighter-rouge">block</code> .</p>
+</blockquote>
+
+<h1 id="参考">参考</h1>
+
+<ul>
+  <li><a href="https://zh-google-styleguide.readthedocs.io/en/latest/google-objc-styleguide/">Google Objective-C Style Guide</a></li>
+  <li><a href="https://github.com/oa414/objc-zen-book-cn/#%E5%B8%B8%E9%87%8F">objc-zen-book-cn</a></li>
+</ul>
+
+<h1 id="推荐">推荐</h1>
+
+<ul>
+  <li><a href="https://developer.apple.com/library/archive/documentation/iPhone/Conceptual/iPhoneOSProgrammingGuide/Introduction/Introduction.html">iOS App ProgrammingGuide</a></li>
+  <li><a href="https://github.com/NYTimes/objective-c-style-guide">NYTimes/objective-c-style-guide</a></li>
+  <li><a href="https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/CodingGuidelines/CodingGuidelines.html">Coding Guide for Cocoa</a></li>
+</ul>
+
+
+                <hr>
+
+                
+                <!-- 多说 Share start -->
+                </style>
+                <div class="ds-share" style="text-align: right" data-thread-key="/2018/12/25/Objective-C-编码规范" data-title="Objective-C 编码规范"
+                    data-url="http://localhost:4000/2018/12/25/Objective-C-%E7%BC%96%E7%A0%81%E8%A7%84%E8%8C%83/" data-images="http://localhost:4000/img/home-bg.jpg"
+                    data-content="Objective-C 编码规范
+
+留白和格式
+
+空格 和 制表符
+
+
+  缩进四个空格或者一个制表符
+
+
+在编辑器设置成一个制表符四个空格
+
+行宽
+
+尽... | 骁菲的博客 | xf's Bolg ">
+                    <!-- <div class="ds-share-inline">
+                      <ul  class="ds-share-icons-16">
+                        <li data-toggle="ds-share-icons-more"><a class="ds-more" href="#">分享到：</a></li>
+                        <li><a class="ds-wechat flat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+                        <li><a class="ds-weibo flat" href="javascript:void(0);" data-service="weibo">微博</a></li>
+                        <li><a class="ds-douban flat" href="javascript:void(0);" data-service="douban">豆瓣</a></li>
+                      </ul> -->
+                    <div class="ds-share-icons-more">
+                    </div>
+                </div>
+                <hr>
+            </div>
+            <!-- 多说 Share end-->
+            
+
+
+            <ul class="pager">
+                
+                <li class="previous">
+                    <a href="/2018/07/14/%E7%BC%96%E5%86%99%E9%AB%98%E8%B4%A8%E9%87%8FObjective-C%E4%BB%A3%E7%A0%81%E7%9A%8452%E4%B8%AA%E6%9C%89%E6%95%88%E6%96%B9%E6%B3%95/" data-toggle="tooltip"
+                        data-placement="top" title="编写高质量iOS与OSX代码的52个有效方法(1)">&larr; Previous Post</a>
+                </li>
+                
+                
+                <li class="next">
+                    <a href="/2019/02/17/iOS%E7%BD%91%E7%BB%9C%E5%B1%82%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%A1%88/" data-toggle="tooltip"
+                        data-placement="top" title="iOS网络层设计方案">Next Post &rarr;</a>
+                </li>
+                
+            </ul>
+
+
+            
+            <!-- 多说评论框 start -->
+            <div class="comment">
+                <div class="ds-thread" data-thread-key="/2018/12/25/Objective-C-编码规范" data-title="Objective-C 编码规范" data-url="http://localhost:4000/2018/12/25/Objective-C-%E7%BC%96%E7%A0%81%E8%A7%84%E8%8C%83/">
+                </div>
+            </div>
+            <!-- 多说评论框 end -->
+            
+
+            
+
+        </div>
+
+        <!-- Sidebar Container -->
+        <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+            <!-- Featured Tags -->
+            
+            <section>
+                <hr class="hidden-sm hidden-xs">
+                <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                <div class="tags">
+                    
+                    
+                    <a href="/tags/#iOS" title="iOS" rel="3">
+                        iOS
+                    </a>
+                    
+                    
+                </div>
+            </section>
+            
+
+            <!-- Friends Blog -->
+            
+            <hr>
+            <h5>FRIENDS</h5>
+            <ul class="list-inline">
+                
+                <li><a href="zxf.me">xf's Blog</a></li>
+                
+                <li><a href="#">Foo</a></li>
+                
+                <li><a href="#">Bar</a></li>
+                
+                <li><a href="#">Example Friends</a></li>
+                
+                <li><a href="#">It helps SEO</a></li>
+                
+            </ul>
+            
+        </div>
+    </div>
+    </div>
+</article>
+
+
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+    // dynamic User by Hux
+    var _user = 'xfbolg';
+
+    // duoshuo comment query.
+    var duoshuoQuery = {
+        short_name: _user
+    };
+    (function () {
+        var ds = document.createElement('script');
+        ds.type = 'text/javascript';
+        ds.async = true;
+        ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+        ds.charset = 'UTF-8';
+        (document.getElementsByTagName('head')[0] ||
+            document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+</script>
+<!-- 多说公共JS代码 end -->
+
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async (u, c) {
+        var d = document,
+            t = 'script',
+            o = d.createElement(t),
+            s = d.getElementsByTagName(t)[0];
+        o.src = u;
+        if (c) {
+            o.addEventListener('load', function (e) {
+                c(null, e);
+            }, false);
+        }
+        s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async ("http://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js", function () {
+        anchors.options = {
+            visible: 'always',
+            placement: 'right',
+            icon: '#'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link {
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top: -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+
+
+                    
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; xf's Bolg 2019
+                    <br>
+                    Theme by <a href="http://huangxuan.me">Hux</a> |
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="91px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=huxpro&repo=huxpro.github.io&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js "></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js "></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js "></script>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/    
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async("/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("http://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/icon_wechat.png" width="0" height="0" />
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>
