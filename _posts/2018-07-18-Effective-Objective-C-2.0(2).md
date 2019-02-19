@@ -1,0 +1,270 @@
+---
+layout: post
+title: Effective Objective-C 2.0 编写高质量iOS代码的52个有效方法 (2)
+tags:
+	- iOS
+---
+
+
+
+Effective Objective-C 2.0 编写高质量iOS代码的52个有效方法 (2)
+====
+
+##在既有类中使用关联对象存放自定义数据
+即 "Associated Object"
+对象关联类型   
+
+关联类型| 等效的@property属性
+-------|------------------
+OBJC\_ASSOCIATION\_ASSIGN| assign
+OBJC\_ASSOCIATION\_RETAIN\_NONATOMIC|nonatomic, retain
+OBJC\_ASSOCIATION_COPY\_NONATOMIC|nonatomic, copy
+OBJC\_ASSOCIATION\_RETAIN|retain
+OBJC\_ASSOCIATION\_COPY|copy
+
+三个处理关联对象的方法
+
+```c
+void objc_setAssociatedObject(id object, void *key, id value, objc_AssociatedPolicy policy)
+
+void objc_getAssociatedObject(id object, void*key)
+
+void objc_removeAssociatedObjects(is object)
+
+```
+
+> 要点
+> 
+> * 可以通过__关联对象__机制把两个对象连起来
+> * 定义关联对象可以指定内存管理语义,用来模仿定义属性时采用的"拥有关系"与"非拥有关系"
+> * 只有在其他做法不可行的时候才应该选用关联对象,因为这种做法通常引入难以查找的bug
+
+## 理解objc_msgSend的作用
+
+Objective-C调用方法通常称为 "消息传递",消息有"名称"和"选择器",可以接受参数,还可能有返回值  
+C语言的函数调用通常为"静态绑定",即在编译期的时候就已经知道会调用哪个函数,并且会直接生成调用这些函数的指令,而且函数地址实际上也是硬编码在指令之中.  
+
+看下下面这段代码
+
+```c
+void printHello() [
+	printf("hello world!");
+}
+
+void printGoodBye() {
+	
+	printf("GoodBye world!");
+}
+
+void doTheThing(int type) {
+	void (*func)();
+	if (type == 0) {
+		func = printHello;
+	} else {
+		func = printGoodBye;
+	}
+	func();
+}
+
+```
+这样的话,就只能使用**动态绑定**了,因为要调用的函数只有在运行时才能确定.  
+
+> 如果msgSend找不到相应的方法,就会执行"message forward"--消息转发
+> objc_msgSend 会将匹配结果存在"快速映射表(fast map)"中,每个类都有这样一个缓存,如果后面还向这个类发送同样的消息,就会提升速度.
+
+###一些边界情况
+* objc_msgSend_stret 如果待发送的消息要返回结构体,可以用这个函数处理.
+* objc_megSend_fpret 如果消息返回的是浮点数,name由这个处理.
+* objc_msgSendSuper. 给父类发消息,
+
+> objc_msgSend 相关方法使用了"尾递归优化",避免过早发出"stack overflow"现象
+
+> 要点
+
+> * 消息由接收者,选择器和参数构成,给对象"发送消息",也就是在对象上面调用方法
+> * 发送给某对象的全部消息都要由"动态消息派发系统(dynamic message dispatch system)"来处理,这个系统会查出对应的方法,并执行其代码.
+
+##理解消息转发机制
+在编译期向类发送了无法解读的消息并不会报错,因为在运行期可以继续向类中添加方法.  
+当对象接收到无法解读的消息的时候,就会启动**消息转发**机制,程序员可以经过这个过程告诉对象如何处理消息  
+
+消息转发分为两大阶段:  
+
+### 动态方法解析
+
+对象在接收到不能解读的消息的时候,首先会调用所属类的下列方法  
+	
+	```obj-c
+	+ (BOOL)resolveInstanceMethod:(SEL)selector;
+	```
+这个方法的参数就是那个未知的选择器,继续往下转发之前,本类有机会新增一个处理此选择子的方法.  
+如果选择器对应的是类的方法,那么就会调用: resolveClassMethod: 这个方法  
+使用这种方式的前提是,相关的代码已经写好,使用的时候直接调用就行了.  
+如下例子,实现一个访问@dynamic属性的例子;
+	
+	```objc
+	id autoDictionaryGetter(id self, SEL _cmd);
+	void autoDictionarySetter(id self, SEL _cmd, id value);
+	+ (BOOL)resulveInstanceMethod(SEL)selector {
+		NSString *selectorString = NSStringFromSelector(selector);
+		if (/*selector is from a @dynamic property*/) {
+		
+			if ([selector hasPrefix:@"set"]) {
+				class_addMethod(self,
+								selector,
+								(IMP)autoDictionarySetter,
+								"v@:@");
+			} else {
+				class_addMethod(self,
+								selector,
+								(IMP)autoDictionaryGetter,
+								"@@:");
+		
+			}
+			return YES;
+		
+		}
+		return [super resolveInstanceMethod:selector];
+	}
+	```
+	
+### 备援接收者
+当前接收者有第二次机会去处理未知的选择器,在这一步中,运行时系统会问他: 能不能把这个选择器转发给其他接收去处理?  
+
+```objc
+- (void)forwardTargetForSelector:(SEL)selector;
+```
+可以经过这个消息模拟"多重继承"的效果,将消息转发给对象内部的某对象
+
+###完整的消息转发
+如果转发算法来到了这一步,就必须启用完整的消息转发机制来处理,  
+
+```objc
+- (void)forwardInvocation:(NSInvocation *)invocation;
+```
+这个方法可以像第二步一样直接转发给另外的接收者,但是很少这么用  
+一般情况下:  
+在触发消息之前,先以某种方式改变消息的内容,追加参数,改变选择器等等  
+在调用到这个方法的时候,会从子类--父类--一直到NSObject来寻找能处理这个选择器的对象,如果都没有,就会抛出doesNotRecognizeSelector: 异常.
+
+###消息转发流程
+
+* resoveInstanceMethod						
+	* 返回YES 
+		* 消息已处理
+	* 返回NO
+		* forwardTargetForSelector
+			* 返回备援接收者
+				* 消息已处理
+			* 返回nil
+				* forwardInvocation
+					* 已处理
+					* 未处理
+
+越是往后,处理消息的代价越大,第一步还会把转发的消息缓存起来
+
+###完整的例子
+这个例子实现@dynamic属性的get和set方法  
+思路为: 属性声明为@dynamic,开发者来添加属性定义,类则会自动生成相关属性的存放和获取操作  
+
+```objc
+// .h文件
+#import <Foundation/Foundation.h>
+
+@interface EOCAutoDictionary: NSObject
+
+@property (nonatomic, strong) NSString *string;
+@property (nonatomic, strong) NSNumber *number;
+@property (nonatomic, strong) NSDate *data;
+@property (nonatimic, strong) id opaqueObject;
+@end
+
+// .m文件
+#import "EOCAutoDictionary.h"
+#import <objc/runtime.h>
+
+@interface EOCAutoDictionary ()
+
+@property (nonatomic, strong) NSMUtableDictionary *backingStore;
+@end
+
+@implementation EOCAutoDictionary 
+@dynamic string , number, date, opaqueObject;
+
+- (id)init {
+	if (self = [super init]) {
+		_backingStore = [NSMutableDictionary dictionary];
+	}
+	return self;
+}
+// 关键代码
+	+ (BOOL)resulveInstanceMethod(SEL)selector {
+		NSString *selectorString = NSStringFromSelector(selector);
+		if (/*selector is from a @dynamic property*/) {
+		
+			if ([selector hasPrefix:@"set"]) {
+				class_addMethod(self,
+								selector,
+								(IMP)autoDictionarySetter,
+								"v@:@");
+			} else {
+				class_addMethod(self,
+								selector,
+								(IMP)autoDictionaryGetter,
+								"@@:");
+		
+			}
+			return YES;
+		
+		}
+		return [super resolveInstanceMethod:selector];
+	}
+// 如果要写入和访问某个属性,系统会以serName 和 name 为选择器来访问 
+id autoDictionaryGetter(id self, SEL _cmd) {
+	EOCAutoDictionary *typeSelf = (EOCAutoDictionary *)self;
+	NSMutableDictionary *backingStore = typeSelf.backingStore;
+	
+	NSString *key = NSStringFromSelector(_cmd);
+	
+	return [backingStore objectForKey:key];
+}
+
+void autoDictionarySetter(id self, SEL _cmd, id value) {
+	EOCAutoDictionary *typeSelf = (EOCAutoDictionary *)self;
+	NSMutableDictionary *backingStore = typeSelf.backingStore;
+	
+	NSString *selectorString = NSStringromSelector(_cmd);
+	NSMutableString *key  =[selectorString mutableCopy];
+	
+	// remove : 
+	[key deleteCharactersInRang:NSMakeRange(key.length - 1, 1)];
+	
+	// remove 'set'
+	[key deleteCharactersInRange:NSMakeRange(0, 3)];
+	// 首字母小写
+	NSString *lowercaseFirstChar = [[key subStringToIndex:1] lowercaseString];
+	[key reolaceCharatctoesInRange:NSMakeRange(0,1) withString:lowercaseFirstChar];
+	
+	if (value) {
+		
+		[backingStore setObject:value forKey:key];
+	} else {
+		[backingStore removeObjectForKey:key];
+	}
+
+}
+
+
+@end
+
+// 这样就可以直接用点语法来访问了
+
+```
+
+>要点
+>
+>* 如果对象无法响应某个选择器,则进入消息转发流程
+>* 通过运行期的动态方法解析功能, 我们可以在需要用到某个方法的时候再加入类中
+>* 对象可以把其无法解读的某些选择器转交给其他对象来处理
+>* 经过上述两步以后,如果还是没有办法处理选择器,那就启动完整的消息转发机制
+	
