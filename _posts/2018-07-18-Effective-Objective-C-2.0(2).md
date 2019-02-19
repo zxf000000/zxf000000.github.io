@@ -1,10 +1,9 @@
 ---
 layout: post
-title: Effective Objective-C 2.0 编写高质量iOS代码的52个有效方法 (2)
+title: Effective Objective-C 2.0(2)
 tags:
 	- iOS
 ---
-
 
 
 Effective Objective-C 2.0 编写高质量iOS代码的52个有效方法 (2)
