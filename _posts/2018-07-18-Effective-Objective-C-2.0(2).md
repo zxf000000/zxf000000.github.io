@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Effective Objective-C 2.0(2)
+title: Effective Objective C 2.0(2)
 tags:
 	- iOS
 ---
